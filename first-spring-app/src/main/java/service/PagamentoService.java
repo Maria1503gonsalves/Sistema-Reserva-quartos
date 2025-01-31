@@ -41,8 +41,8 @@ public class PagamentoService {
         return pagamentoRepository.save(pagamento);
     }
 
-    public Void excluirPagamento(Long id){
+    public void excluirPagamento(Long id){
         pagamentoRepository.deleteById(id);
-        return  null;
+
     }
 }
