@@ -1,86 +1,55 @@
 <template>
   <div>
-    <h1>Sua Localização</h1>
-    <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
-    <p v-if="city && country">
-      Cidade: {{ city }} <br />
-      País: {{ country }}
-    </p>
-    <button @click="getLocation">Obter Localização</button>
+    <!-- Navegação -->
+    <nav>
+      <button @click="changePage('localizacao')">Localização</button>
+      <button @click="changePage('datas')">Datas</button>
+      <button @click="changePage('cadastro')">Cadastro</button>
+      <button @click="changePage('login')">Login</button>
+    </nav>
 
-    <h2>encontre seu melhor quarto</h2>
-    <flat-pickr 
-      v-model="dateRange" 
-      :config="config" 
-      placeholder="Selecione as datas" 
-    />
-    <p>Data de entrada: {{ dateRange[0] }}</p>
-    <p>Data de saída: {{ dateRange[1] }}</p>
+    <!-- Renderização de Componentes -->
+    <Localizacao v-if="currentPage === 'localizacao'" />
+    <Calendario v-if="currentPage === 'datas'" />
+    <Cadastro v-if="currentPage === 'cadastro'" />
+    <Login v-if="currentPage === 'login'" />
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import FlatPickr from 'vue-flatpickr-component';
-import 'flatpickr/dist/flatpickr.css';
+import Localizacao from './components/localizacao.vue';
+import Calendario from './components/calendario.vue';
+import Cadastro from './components/cadastro.vue';
+import Login from './components/Login.vue';
 
 export default {
+  name: "App",
   components: {
-    FlatPickr,
+    localizacao,
+    calendario,
+    cadastro,
+    login,
   },
   data() {
     return {
-      city: null,
-      country: null,
-      errorMessage: "",
-      dateRange: [],
-      config: {
-        mode: "range",
-        dateFormat: "Y-m-d",
-      },
+      currentPage: "localizacao", // Página padrão
     };
   },
   methods: {
-    async getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-
-            try {
-              const response = await axios.get(
-                `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=20fb2055e4e643efa8908a10e26338c3`
-              );
-
-              const components = response.data.results[0].components;
-              this.city =
-                components.city || components.town || components.village;
-              this.country = components.country;
-              this.errorMessage = "";
-            } catch (error) {
-              this.errorMessage = "Erro ao obter a localização: " + error.message;
-            }
-          },
-          (error) => {
-            switch (error.code) {
-              case error.PERMISSION_DENIED:
-                this.errorMessage = "Permissão negada pelo usuário.";
-                break;
-              case error.POSITION_UNAVAILABLE:
-                this.errorMessage = "Localização indisponível.";
-                break;
-              case error.TIMEOUT:
-                this.errorMessage = "Tempo para obter localização esgotado.";
-                break;
-              default:
-                this.errorMessage = "Ocorreu um erro desconhecido.";
-            }
-          }
-        );
-      } else {
-        this.errorMessage = "Geolocalização não suportada no navegador.";
-      }
+    changePage(page) {
+      console.log(`Mudando para a página: ${page}`); // Log para depuração
+      this.currentPage = page;
     },
   },
 };
 </script>
+
+<style scoped>
+nav {
+  margin-bottom: 20px;
+}
+
+button {
+  margin-right: 10px;
+}
+</style>
